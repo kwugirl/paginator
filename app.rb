@@ -1,8 +1,13 @@
+require "json"
 require "sequel"
 require "sinatra"
 
 #
 # = Examples
+#
+# To encode JSON:
+#
+#   JSON.generate([1, 2, 3])
 #
 # Get a query parameter:
 #
