@@ -15,6 +15,12 @@ To edit the application being run:
 vi app.rb
 ```
 
+## Run Tests
+
+```
+bundle exec rake
+```
+
 ## Database
 
 Optionally, get the database bootstrapped with the following:
