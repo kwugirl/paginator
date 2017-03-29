@@ -14,6 +14,7 @@ describe API::Endpoints::Things do
 
     expect(last_response.headers["Content-Type"]).to eq("application/json")
     expect(last_response.headers["Content-Range"]).to eq("id 123..123")
+    expect(last_response.headers["Next-Range"]).to eq("id ]123..; max=200")
 
     json = JSON.parse(last_response.body)
 
