@@ -131,18 +131,19 @@ describe API::Endpoints::Things do
     expect(json).to eq(expected_json)
   end
 
-  it "returns a JSON collection limited to specified page size" do
+  it "returns a JSON collection limited to specified page size with precedence over end identifier" do
     Thing.create! id: 300, name: "thing-300"
     Thing.create! id: 1, name: "thing-1"
     Thing.create! id: 200, name: "thing-200"
 
     page_size = 2
+    end_identifier = 500
     expected_json = [
       {"id" => 1, "name" => "thing-1"},
       {"id" => 200, "name" => "thing-200"}
     ]
 
-    header "Range", "id 1..; max=#{page_size}"
+    header "Range", "id 1..#{end_identifier}; max=#{page_size}"
     get "/things"
     json = JSON.parse(last_response.body)
 
