@@ -8,12 +8,14 @@ module API
           max_page_size = 200
           order = :asc
 
-          query = Thing.order(range_header.field => order).limit(max_page_size)
+          query = Thing.order(range_header.field => order).limit(max_page_size).all
           if range_header.start_identifier
-            things = query.where("#{range_header.field} >= #{range_header.start_identifier}")
-          else
-            things = query.all
+            query = query.where("#{range_header.field} >= #{range_header.start_identifier}")
           end
+          if range_header.end_identifier
+            query = query.where("#{range_header.field} < #{range_header.end_identifier}")
+          end
+          things = query
 
           headers 'Content-Range' => "#{range_header.field} #{things.first[range_header.field]}..#{things.last[range_header.field]}",
             'Next-Range' => "#{range_header.field} ]#{things.last[range_header.field]}..; max=#{max_page_size}"
@@ -26,19 +28,22 @@ module API
         def self.parse(header)
           field = nil
           start_identifier = nil
+          end_identifier = nil
 
-          header_parts = /^(\S+) (\d*)..$/.match(header) || ""
+          header_parts = /^(\S+) (\d*)..(\d*)$/.match(header) || ""
           field = header_parts[1] unless header_parts[1].to_s.empty?
           start_identifier = header_parts[2] unless header_parts[2].to_s.empty?
+          end_identifier = header_parts[3] unless header_parts[3].to_s.empty?
 
-          RangeHeader.new(field, start_identifier)
+          RangeHeader.new(field, start_identifier, end_identifier)
         end
 
-        attr_reader :field, :start_identifier
+        attr_reader :field, :start_identifier, :end_identifier
 
-        def initialize(field, start_identifier=nil)
+        def initialize(field, start_identifier=nil, end_identifier=nil)
           @field = field || "id"
           @start_identifier = start_identifier
+          @end_identifier = end_identifier
         end
       end
     end

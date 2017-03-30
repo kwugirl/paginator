@@ -97,11 +97,27 @@ describe API::Endpoints::Things do
 
     expect(json).to eq(expected_json)
   end
+
+  it "returns a JSON collection until the end identifier" do
+    Thing.create! id: 300, name: "thing-300"
+    Thing.create! id: 1, name: "thing-1"
+    Thing.create! id: 200, name: "thing-200"
+
+    start_identifier = 100
+    end_identifier = 250
+    expected_json = [
+      {"id" => 200, "name" => "thing-200"}
+    ]
+
+    header "Range", "id #{start_identifier}..#{end_identifier}"
+    get "/things"
+    json = JSON.parse(last_response.body)
+
+    expect(json).to eq(expected_json)
+  end
 end
 
 # Range: <field> [[<exclusivity operator>]<start identifier>]]..[<end identifier>][; [max=<max number of results>], [order=[<asc|desc>]]
-# Range: id 1..
-# Range: id 1..5
 # Range: id ]5..
 # Range: id 1..; max=5
 # Range: id 1..; order=desc
