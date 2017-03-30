@@ -7,7 +7,7 @@ module Pagination
     DEFAULT_PAGE_SIZE = 200
     DEFAULT_ORDERING = :asc
 
-    def initialize(field=DEFAULT_FIELD, page_size=DEFAULT_PAGE_SIZE, ordering=DEFAULT_ORDERING)
+    def initialize(field: DEFAULT_FIELD, page_size: DEFAULT_PAGE_SIZE, ordering: DEFAULT_ORDERING)
       @field = field
       @page_size = page_size
       @ordering = ordering
@@ -56,6 +56,6 @@ module Pagination
 
   def parse_range_request_header(header)
     field = header.split(" ").first
-    RangeHeader.new(field)
+    RangeHeader.new(field: field)
   end
 end

@@ -21,7 +21,7 @@ describe Pagination do
 
   it "should parse minimal range request header with field" do
     request_header = "name .."
-    expected = Pagination::RangeHeader.new("name")
+    expected = Pagination::RangeHeader.new(field: "name")
 
     expect(parse_range_request_header(request_header)).to be == expected
   end
