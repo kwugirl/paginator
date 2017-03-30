@@ -14,19 +14,26 @@ module Pagination
   end
 
   class Paginator
-    def initialize(results, range_request_header)
+    def initialize(results, header)
       @results = results
-      @range_request_header = range_request_header
+      @header = header
     end
 
-    def range_response_headers
-      {'Next-Range' => next_range_header}
+    def response_headers
+      {
+        'Content-Range' => content_range,
+        'Next-Range' => next_range
+      }
     end
 
     private
 
-    def next_range_header
-      "#{@range_request_header.field} ]#{@results.last[@range_request_header.field]}..; max=#{@range_request_header.page_size}"
+    def content_range
+      "#{@header.field} #{@results.first[@header.field]}..#{@results.last[@header.field]}"
+    end
+
+    def next_range
+      "#{@header.field} ]#{@results.last[@header.field]}..; max=#{@header.page_size}"
     end
   end
 end
