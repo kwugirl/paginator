@@ -41,7 +41,10 @@ describe Pagination do
   end
 
   it "should parse range request header with numeric start and end identifiers" do
-    # Range: id 1..5
+    request_header = "id 1..5"
+    expected = Pagination::RangeHeader.new(field: "id", start_identifier: "1", end_identifier: "5")
+
+    expect(parse_range_request_header(request_header)).to be == expected
   end
 
   it "should parse range request header with nonnumeric start and end identifiers" do
