@@ -5,10 +5,9 @@ module API
         get do
           range_header = RangeHeader.parse(request.env["HTTP_RANGE"].to_s)
 
-          max_page_size = 200
           order = :asc
 
-          query = Thing.order(range_header.field => order).limit(max_page_size).all
+          query = Thing.order(range_header.field => order).limit(range_header.page_size).all
           if range_header.start_identifier
             if range_header.inclusive
               query = query.where("#{range_header.field} >= #{range_header.start_identifier}")
@@ -22,7 +21,7 @@ module API
           things = query
 
           headers 'Content-Range' => "#{range_header.field} #{things.first[range_header.field]}..#{things.last[range_header.field]}",
-            'Next-Range' => "#{range_header.field} ]#{things.last[range_header.field]}..; max=#{max_page_size}"
+            'Next-Range' => "#{range_header.field} ]#{things.last[range_header.field]}..; max=#{range_header.page_size}"
 
           things.to_json
         end
@@ -45,13 +44,14 @@ module API
           RangeHeader.new(field, start_identifier, end_identifier, inclusive)
         end
 
-        attr_reader :field, :start_identifier, :end_identifier, :inclusive
+        attr_reader :field, :start_identifier, :end_identifier, :inclusive, :page_size
 
-        def initialize(field, start_identifier=nil, end_identifier=nil, inclusive=true)
+        def initialize(field, start_identifier=nil, end_identifier=nil, inclusive=true, page_size=200)
           @field = field || "id"
           @start_identifier = start_identifier
           @end_identifier = end_identifier
           @inclusive = inclusive
+          @page_size = page_size
         end
       end
     end
