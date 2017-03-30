@@ -18,7 +18,11 @@ module API
 
       class RangeHeader
         def self.parse(header)
-          field = header.split(" ").first
+          field = nil
+
+          header_parts = /^(\S+) (\d*)..$/.match(header) || ""
+          field = header_parts[1] unless header_parts[1].to_s.empty?
+
           RangeHeader.new(field)
         end
 
