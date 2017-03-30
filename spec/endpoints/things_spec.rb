@@ -58,14 +58,31 @@ describe API::Endpoints::Things do
       expect(last_response.headers["Next-Range"]).to eq("id ]300..; max=200")
     end
   end
+
+  it "returns a JSON collection paginated on the specified field" do
+    Thing.create! id: 1, name: "thing-300"
+    Thing.create! id: 2, name: "thing-123"
+    Thing.create! id: 3, name: "thing-124"
+
+    specified_field = "name"
+    expected_json = [
+      {"name" => "thing-123", "id" => 2},
+      {"name" => "thing-124", "id" => 3},
+      {"name" => "thing-300", "id" => 1}
+    ]
+
+    header "Range", "#{specified_field} .."
+    get "/things"
+    json = JSON.parse(last_response.body)
+
+    expect(json).to eq(expected_json)
+    expect(last_response.headers["Content-Range"]).to eq("#{specified_field} thing-123..thing-300")
+    expect(last_response.headers["Next-Range"]).to eq("#{specified_field} ]thing-300..; max=200")
+  end
 end
 
 # Range: <field> [[<exclusivity operator>]<start identifier>]]..[<end identifier>][; [max=<max number of results>], [order=[<asc|desc>]]
-# minimal request header: `Range: <field> ..`
-# Range: id ..
-# Range: name ..
 
-# making a request with a Range header that's just `Range: name ..` and then parsing it, therefore
 # maybe have a Range object that has a helper, that when given the data result set, could generate its successor/Next-Range
 
 # assumptions:

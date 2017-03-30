@@ -3,7 +3,7 @@ module API
     class Things < Base
       namespace "/things" do
         get do
-          range_header = request.env["HTTP_RANGE"] || RangeHeader.new
+          range_header = RangeHeader.parse(request.env["HTTP_RANGE"].to_s)
 
           max_page_size = 200
           order = :asc
@@ -17,10 +17,15 @@ module API
       end
 
       class RangeHeader
+        def self.parse(header)
+          field = header.split(" ").first
+          RangeHeader.new(field)
+        end
+
         attr_reader :field
 
-        def initialize(field="id")
-          @field = field
+        def initialize(field)
+          @field = field || "id"
         end
       end
     end
