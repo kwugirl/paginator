@@ -76,7 +76,10 @@ describe Pagination do
   end
 
   it "should parse range request header with page size" do
-    # Range: id 1..; max=5
+    request_header = "id 1..; max=5"
+    expected = Pagination::RangeHeader.new(field: "id", start_identifier: "1", page_size: 5)
+
+    expect(parse_range_request_header(request_header)).to be == expected
   end
 
   it "should parse range request header with ordering" do

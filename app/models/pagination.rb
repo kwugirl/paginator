@@ -70,7 +70,12 @@ module Pagination
     params[:exclusive_start] = true if start_identifier.start_with?("]")
     params[:start_identifier] = start_identifier.gsub(/^\[|\]/,'') unless start_identifier.blank?
 
-    params[:end_identifier] = rest_of_header unless rest_of_header.blank?
+    end_identifier, rest_of_header = rest_of_header.split("; ", 2)
+    params[:end_identifier] = end_identifier unless end_identifier.blank?
+
+    match_for_page_size = rest_of_header.match(/max=(\d+)/) if rest_of_header
+    page_size = match_for_page_size[1] if match_for_page_size
+    params[:page_size] = page_size.to_i if page_size
 
     RangeHeader.new(params)
   end
