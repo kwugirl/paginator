@@ -90,7 +90,17 @@ describe Pagination do
   end
 
   it "should parse range request header with all elements" do
-    # Range: id ]5..10; max=5, order=desc
-    # Range: name ]my-app-001..my-app-999; max=10, order=asc
+    request_header = "id ]5..10; max=5, order=desc"
+    expected = Pagination::RangeHeader.new(field: "id", exclusive_start: true,
+      start_identifier: "5", end_identifier: "10", page_size: 5, ordering: :desc)
+
+    expect(parse_range_request_header(request_header)).to be == expected
+
+
+    request_header = "name ]my-app-001..my-app-999; max=10, order=asc"
+    expected = Pagination::RangeHeader.new(field: "name", exclusive_start: true,
+      start_identifier: "my-app-001", end_identifier: "my-app-999", page_size: 10, ordering: :asc)
+
+    expect(parse_range_request_header(request_header)).to be == expected
   end
 end
