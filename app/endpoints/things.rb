@@ -10,7 +10,7 @@ module API
           max_page_size = 200
           order = :asc
 
-          things = Thing.all.order(field => order)
+          things = Thing.all.order(field => order).limit(max_page_size)
           headers 'Content-Range' => "#{field} #{things.first[field]}..#{things.last[field]}",
             'Next-Range' => "#{field} ]#{things.last[field]}..; max=#{max_page_size}"
 

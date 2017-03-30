@@ -40,6 +40,23 @@ describe API::Endpoints::Things do
       expect(last_response.headers["Content-Range"]).to eq("id 123..300")
       expect(last_response.headers["Next-Range"]).to eq("id ]300..; max=200")
     end
+
+    it "returns a paginated JSON collection with at most 200 items" do
+      starting_id = 101
+      (starting_id..450).each do |num|
+        Thing.create! id: num, name: "thing-#{num}"
+      end
+      expected_json = (starting_id...(starting_id + 200)).reduce([]) do |collection, num|
+        collection << {"id" => num, "name" => "thing-#{num}"}
+      end
+
+      get "/things"
+      json = JSON.parse(last_response.body)
+
+      expect(json).to eq(expected_json)
+      expect(last_response.headers["Content-Range"]).to eq("id 101..300")
+      expect(last_response.headers["Next-Range"]).to eq("id ]300..; max=200")
+    end
   end
 end
 
@@ -47,16 +64,7 @@ end
 # minimal request header: `Range: <field> ..`
 # Range: id ..
 # Range: name ..
-# defaults for when no Range header was specified at all:
-# * field: id
-# * start with 1
-# * max page size of 200
-# * order: asc
-# * numbers in the response headers based entirely on the data that's being sent back. consider that rows may have been deleted, IDs may be sparse
-# * still returns a Content-Range header describing the precise range of the response (ex. Content-Range: id 5..10) - 2 cases, for if you have fewer or more than the max page size
-# * still returns a Next-Range header for how to request the following page (ex. Next-Range: id ]10..; max=200)
 
-# next tests: ordering, max page size (need to put in 200+ objects into test database)
 # making a request with a Range header that's just `Range: name ..` and then parsing it, therefore
 # maybe have a Range object that has a helper, that when given the data result set, could generate its successor/Next-Range
 
