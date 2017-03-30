@@ -99,4 +99,24 @@ describe API::Endpoints::Things do
     expect(json).to eq(expected_json)
     expect(last_response.headers["Next-Range"]).to eq("id ]200..; max=#{page_size}")
   end
+
+  it "returns a JSON collection sorted as requested" do
+    Thing.create! id: 300, name: "thing-300"
+    Thing.create! id: 1, name: "thing-1"
+    Thing.create! id: 200, name: "thing-200"
+
+    page_size = 2
+    ordering = "desc"
+    expected_json = [
+      {"id" => 300, "name" => "thing-300"},
+      {"id" => 200, "name" => "thing-200"},
+    ]
+
+    header "Range", "id 1..; max=#{page_size}, order=#{ordering}"
+    get "/things"
+    json = JSON.parse(last_response.body)
+
+    expect(json).to eq(expected_json)
+    expect(last_response.headers["Next-Range"]).to eq("id ]200..; max=#{page_size}, order=#{ordering}")
+  end
 end

@@ -53,7 +53,11 @@ module Pagination
     end
 
     def next_range
-      "#{@header.field} ]#{@results.last[@header.field]}..; max=#{@header.page_size}"
+      unless @header.ordering == RangeHeader::DEFAULT_ORDERING
+        ordering = ", order=#{@header.ordering}"
+      end
+
+      "#{@header.field} ]#{@results.last[@header.field]}..; max=#{@header.page_size}#{ordering}"
     end
   end
 
