@@ -36,14 +36,19 @@ module API
           page_size = nil
           order = nil
 
-          header_parts = /^(\S+) (\[|\])?(\d*)..(\d*)(; )?(max=(\d+))?(, )?(order=(asc|desc))?$/.match(header) || ""
+          header_part_one, header_part_two = header.split("; ")
 
-          field = header_parts[1] unless header_parts[1].to_s.empty?
-          inclusive = false if !header_parts[2].to_s.empty? && header_parts[2] == "]"
-          start_identifier = header_parts[3] unless header_parts[3].to_s.empty?
-          end_identifier = header_parts[4] unless header_parts[4].to_s.empty?
-          page_size = header_parts[7].to_i unless header_parts[7].to_s.empty?
-          order = header_parts[10] unless header_parts[10].to_s.empty?
+          header_part_one = /^(\S+) (\[|\])?(.*)\.\.(.*)/.match(header_part_one) || ""
+
+          field = header_part_one[1] unless header_part_one[1].to_s.empty?
+          inclusive = false if !header_part_one[2].to_s.empty? && header_part_one[2] == "]"
+          start_identifier = header_part_one[3] unless header_part_one[3].to_s.empty?
+          end_identifier = header_part_one[4] unless header_part_one[4].to_s.empty?
+
+          if header_part_two
+            page_size = /max=(\d+)/.match(header_part_two)[1] if /max=(\d+)/.match(header_part_two)
+            order = /order=(desc|asc)/.match(header_part_two)[1] if /order=(desc|asc)/.match(header_part_two)
+          end
 
           RangeHeader.new(field, start_identifier, end_identifier, inclusive, page_size, order)
         end
