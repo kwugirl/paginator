@@ -33,25 +33,27 @@ module API
           start_identifier = nil
           end_identifier = nil
           inclusive = true
+          page_size = nil
 
-          header_parts = /^(\S+) (\[|\])?(\d*)..(\d*)$/.match(header) || ""
+          header_parts = /^(\S+) (\[|\])?(\d*)..(\d*)(; max=(\d+))?$/.match(header) || ""
 
           field = header_parts[1] unless header_parts[1].to_s.empty?
           inclusive = false if !header_parts[2].to_s.empty? && header_parts[2] == "]"
           start_identifier = header_parts[3] unless header_parts[3].to_s.empty?
           end_identifier = header_parts[4] unless header_parts[4].to_s.empty?
+          page_size = header_parts[6].to_i unless header_parts[6].to_s.empty?
 
-          RangeHeader.new(field, start_identifier, end_identifier, inclusive)
+          RangeHeader.new(field, start_identifier, end_identifier, inclusive, page_size)
         end
 
         attr_reader :field, :start_identifier, :end_identifier, :inclusive, :page_size
 
-        def initialize(field, start_identifier=nil, end_identifier=nil, inclusive=true, page_size=200)
+        def initialize(field, start_identifier=nil, end_identifier=nil, inclusive=true, page_size)
           @field = field || "id"
           @start_identifier = start_identifier
           @end_identifier = end_identifier
           @inclusive = inclusive
-          @page_size = page_size
+          @page_size = page_size || 200
         end
       end
     end
