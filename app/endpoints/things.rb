@@ -9,7 +9,7 @@ module API
         get do
           range_header = request.env["HTTP_RANGE"] || RangeHeader.new
 
-          things = Thing.all.order(range_header.field => range_header.ordering).limit(range_header.page_size)
+          things = range_header.query_for(Thing)
           paginator = Paginator.new(things, range_header)
 
           headers paginator.response_headers

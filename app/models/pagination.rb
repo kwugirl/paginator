@@ -24,6 +24,10 @@ module Pagination
     def ==(other_range_header)
       self.attributes == other_range_header.attributes
     end
+
+    def query_for(ar_model)
+      ar_model.all.order(field => ordering).limit(page_size)
+    end
   end
 
   class Paginator
