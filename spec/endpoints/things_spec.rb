@@ -22,6 +22,24 @@ describe API::Endpoints::Things do
       expect(json).to be_kind_of(Array)
       expect(json).to include("id" => 123, "name" => "thing-123")
     end
+
+    it "returns a JSON collection ordered by asc ID" do
+      Thing.create! id: 300, name: "thing-300"
+      Thing.create! id: 123, name: "thing-123"
+      Thing.create! id: 124, name: "thing-124"
+      expected_json = [
+        {"id" => 123, "name" => "thing-123"},
+        {"id" => 124, "name" => "thing-124"},
+        {"id" => 300, "name" => "thing-300"}
+      ]
+
+      get "/things"
+      json = JSON.parse(last_response.body)
+
+      expect(json).to eq(expected_json)
+      expect(last_response.headers["Content-Range"]).to eq("id 123..300")
+      expect(last_response.headers["Next-Range"]).to eq("id ]300..; max=200")
+    end
   end
 end
 

@@ -8,8 +8,9 @@ module API
           # TODO: actually parse and paginate
           field = "id"
           max_page_size = 200
+          order = :asc
 
-          things = Thing.all
+          things = Thing.all.order(field => order)
           headers 'Content-Range' => "#{field} #{things.first[field]}..#{things.last[field]}",
             'Next-Range' => "#{field} ]#{things.last[field]}..; max=#{max_page_size}"
 
