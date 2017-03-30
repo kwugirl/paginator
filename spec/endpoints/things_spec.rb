@@ -115,10 +115,24 @@ describe API::Endpoints::Things do
 
     expect(json).to eq(expected_json)
   end
+
+  it "returns a JSON collection respecting exclusivity operator" do
+    Thing.create! id: 300, name: "thing-300"
+    Thing.create! id: 1, name: "thing-1"
+
+    expected_json = [
+      {"id" => 300, "name" => "thing-300"}
+    ]
+
+    header "Range", "id ]1.."
+    get "/things"
+    json = JSON.parse(last_response.body)
+
+    expect(json).to eq(expected_json)
+  end
 end
 
 # Range: <field> [[<exclusivity operator>]<start identifier>]]..[<end identifier>][; [max=<max number of results>], [order=[<asc|desc>]]
-# Range: id ]5..
 # Range: id 1..; max=5
 # Range: id 1..; order=desc
 # Range: id ]5..10; max=5, order=desc
