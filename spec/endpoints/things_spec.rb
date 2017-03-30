@@ -79,9 +79,34 @@ describe API::Endpoints::Things do
     expect(last_response.headers["Content-Range"]).to eq("#{specified_field} thing-123..thing-300")
     expect(last_response.headers["Next-Range"]).to eq("#{specified_field} ]thing-300..; max=200")
   end
+
+  it "returns a JSON collection starting from the start identifier" do
+    Thing.create! id: 300, name: "thing-300"
+    Thing.create! id: 1, name: "thing-1"
+    Thing.create! id: 100, name: "thing-100"
+
+    start_identifier = 100
+    expected_json = [
+      {"id" => 100, "name" => "thing-100"},
+      {"id" => 300, "name" => "thing-300"}
+    ]
+
+    header "Range", "id #{start_identifier}.."
+    get "/things"
+    json = JSON.parse(last_response.body)
+
+    expect(json).to eq(expected_json)
+  end
 end
 
 # Range: <field> [[<exclusivity operator>]<start identifier>]]..[<end identifier>][; [max=<max number of results>], [order=[<asc|desc>]]
+# Range: id 1..
+# Range: id 1..5
+# Range: id ]5..
+# Range: id 1..; max=5
+# Range: id 1..; order=desc
+# Range: id ]5..10; max=5, order=desc
+# Range: name ]my-app-001..my-app-999; max=10, order=asc
 
 # maybe have a Range object that has a helper, that when given the data result set, could generate its successor/Next-Range
 
