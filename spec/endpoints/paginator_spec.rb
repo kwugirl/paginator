@@ -62,7 +62,17 @@ describe Pagination do
   end
 
   it "should parse range request header with exclusivity operator" do
-    # Range: id ]5..
+    request_header = "id ]5.."
+    expected = Pagination::RangeHeader.new(field: "id", start_identifier: "5", exclusive_start: true)
+
+    expect(parse_range_request_header(request_header)).to be == expected
+  end
+
+  it "should parse range request header and ignore inclusive exclusivity operator" do
+    request_header = "id [5.."
+    expected = Pagination::RangeHeader.new(field: "id", start_identifier: "5", exclusive_start: false)
+
+    expect(parse_range_request_header(request_header)).to be == expected
   end
 
   it "should parse range request header with page size" do
