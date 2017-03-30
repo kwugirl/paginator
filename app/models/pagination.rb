@@ -73,9 +73,14 @@ module Pagination
     end_identifier, rest_of_header = rest_of_header.split("; ", 2)
     params[:end_identifier] = end_identifier unless end_identifier.blank?
 
-    match_for_page_size = rest_of_header.match(/max=(\d+)/) if rest_of_header
-    page_size = match_for_page_size[1] if match_for_page_size
-    params[:page_size] = page_size.to_i if page_size
+    if rest_of_header
+      match_for_page_size = rest_of_header.match(/max=(\d+)/)
+      page_size = match_for_page_size[1] if match_for_page_size
+      params[:page_size] = page_size.to_i if page_size
+
+      match_for_ordering = rest_of_header.match(/order=(desc)/)
+      params[:ordering] = :desc if match_for_ordering
+    end
 
     RangeHeader.new(params)
   end

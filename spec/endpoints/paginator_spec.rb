@@ -83,7 +83,10 @@ describe Pagination do
   end
 
   it "should parse range request header with ordering" do
-    # Range: id 1..; order=desc
+    request_header = "id 1..; order=desc"
+    expected = Pagination::RangeHeader.new(field: "id", start_identifier: "1", ordering: :desc)
+
+    expect(parse_range_request_header(request_header)).to be == expected
   end
 
   it "should parse range request header with all elements" do
