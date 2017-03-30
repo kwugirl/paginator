@@ -26,6 +26,13 @@ describe Pagination do
     expect(parse_range_request_header(request_header)).to be == expected
   end
 
+  it "should produce default RangeHeader when parsing input of nil" do
+    request_header = nil
+    expected = Pagination::RangeHeader.new
+
+    expect(parse_range_request_header(request_header)).to be == expected
+  end
+
   it "should parse range request header with start identifier" do
     # Range: id 1..
   end

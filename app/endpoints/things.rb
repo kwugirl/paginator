@@ -7,7 +7,7 @@ module API
 
       namespace "/things" do
         get do
-          range_header = request.env["HTTP_RANGE"] || RangeHeader.new
+          range_header = parse_range_request_header(request.env["HTTP_RANGE"])
 
           things = range_header.query_for(Thing)
           paginator = Paginator.new(things, range_header)

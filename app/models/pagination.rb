@@ -55,6 +55,8 @@ module Pagination
   end
 
   def parse_range_request_header(header)
+    return RangeHeader.new unless header
+
     field = header.split(" ").first
     RangeHeader.new(field: field)
   end
