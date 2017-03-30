@@ -55,7 +55,10 @@ describe Pagination do
   end
 
   it "should parse range request header with nonnumeric start and end identifiers" do
-    # Range: name ]my-app-001..my-app-999
+    request_header = "name my-app-001..my-app-999"
+    expected = Pagination::RangeHeader.new(field: "name", start_identifier: "my-app-001", end_identifier: "my-app-999")
+
+    expect(parse_range_request_header(request_header)).to be == expected
   end
 
   it "should parse range request header with exclusivity operator" do
