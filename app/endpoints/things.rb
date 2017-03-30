@@ -10,8 +10,11 @@ module API
           range_header = request.env["HTTP_RANGE"] || RangeHeader.new
 
           things = Thing.all.order(range_header.field => range_header.ordering).limit(range_header.page_size)
-          headers 'Content-Range' => "#{range_header.field} #{things.first[range_header.field]}..#{things.last[range_header.field]}",
-            'Next-Range' => "#{range_header.field} ]#{things.last[range_header.field]}..; max=#{range_header.page_size}"
+
+          paginator = Paginator.new(things, range_header)
+
+          headers 'Content-Range' => "#{range_header.field} #{things.first[range_header.field]}..#{things.last[range_header.field]}"
+          headers paginator.range_response_headers
 
           things.to_json
         end

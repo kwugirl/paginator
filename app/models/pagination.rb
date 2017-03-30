@@ -12,4 +12,21 @@ module Pagination
       @ordering = ordering
     end
   end
+
+  class Paginator
+    def initialize(results, range_request_header)
+      @results = results
+      @range_request_header = range_request_header
+    end
+
+    def range_response_headers
+      {'Next-Range' => next_range_header}
+    end
+
+    private
+
+    def next_range_header
+      "#{@range_request_header.field} ]#{@results.last[@range_request_header.field]}..; max=#{@range_request_header.page_size}"
+    end
+  end
 end
