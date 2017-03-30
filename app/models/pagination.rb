@@ -1,5 +1,4 @@
 module Pagination
-  # Range: <field> [[<exclusivity operator>]<start identifier>]]..[<end identifier>][; [max=<max number of results>], [order=[<asc|desc>]]
   class RangeHeader
     attr_reader :field, :page_size, :ordering, :start_identifier, :end_identifier, :exclusive_start
 
