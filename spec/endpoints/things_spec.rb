@@ -170,6 +170,32 @@ describe API::Endpoints::Things do
     expect(json).to eq(expected_json)
     expect(last_response.headers["Next-Range"]).to eq("id ]200..; max=#{page_size}, order=#{ordering}")
   end
+
+  it "returns a fully and corrected paginated JSON collection" do
+    Thing.create! id: 1, name: "thing-300"
+    Thing.create! id: 2, name: "thing-123"
+    Thing.create! id: 3, name: "thing-124"
+    Thing.create! id: 4, name: "thing-12"
+    Thing.create! id: 5, name: "thing-1"
+
+    field = "name"
+    start_identifier = "thing-1"
+    end_identifier = "thing-125"
+    page_size = 4
+    ordering = "asc"
+    expected_json = [
+      {"name" => "thing-12", "id" => 4},
+      {"name" => "thing-123", "id" => 2},
+      {"name" => "thing-124", "id" => 3}
+    ]
+
+    header "Range", "#{field} ]#{start_identifier}..#{end_identifier}; max=#{page_size}, order=#{ordering}"
+    get "/things"
+    json = JSON.parse(last_response.body)
+
+    expect(json).to eq(expected_json)
+    expect(last_response.headers["Next-Range"]).to eq("#{field} ]thing-124..; max=#{page_size}, order=#{ordering}")
+  end
 end
 
 # Range: <field> [[<exclusivity operator>]<start identifier>]]..[<end identifier>][; [max=<max number of results>], [order=[<asc|desc>]]
