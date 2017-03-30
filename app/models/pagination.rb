@@ -1,4 +1,5 @@
 module Pagination
+  # Range: <field> [[<exclusivity operator>]<start identifier>]]..[<end identifier>][; [max=<max number of results>], [order=[<asc|desc>]]
   class RangeHeader
     attr_reader :field, :page_size, :ordering
 
@@ -10,6 +11,18 @@ module Pagination
       @field = field
       @page_size = page_size
       @ordering = ordering
+    end
+
+    def attributes
+      all_attributes = {}
+      instance_variables.map do |ivar|
+        all_attributes[ivar] = instance_variable_get(ivar)
+      end
+      all_attributes
+    end
+
+    def ==(other_range_header)
+      self.attributes == other_range_header.attributes
     end
   end
 
@@ -35,5 +48,10 @@ module Pagination
     def next_range
       "#{@header.field} ]#{@results.last[@header.field]}..; max=#{@header.page_size}"
     end
+  end
+
+  def parse_range_request_header(header)
+    field = header.split(" ").first
+    RangeHeader.new(field)
   end
 end
